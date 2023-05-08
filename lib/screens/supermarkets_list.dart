@@ -28,13 +28,13 @@ class _SupermarketsListWidget extends State<SupermarketsListWidget> {
               String newName = ''; // initial value
 
               return AlertDialog(
-                title: Text('Edit Supermarket'),
+                title: const Text('Editar loja'),
                 content: TextField(
                   onChanged: (value) {
                     newName = value;
                   },
                   decoration: const InputDecoration(
-                    hintText: 'Enter new name',
+                    hintText: 'Introduz novo nome',
                   ),
                 ),
                 actions: [
@@ -49,8 +49,10 @@ class _SupermarketsListWidget extends State<SupermarketsListWidget> {
                       Navigator.of(context).pop();
                       Provider.of<SupermarketsProvider>(context, listen: false)
                           .addSupermarket(
-                        Supermarket(name: newName, price: 0.0),
-                      );
+                              Supermarket(name: newName, price: 0.0));
+                      Provider.of<ProductsProvider>(context, listen: false)
+                          .addSupermarket(
+                              Supermarket(name: newName, price: 0.0));
                       Provider.of<ProductsProvider>(context, listen: false)
                           .notifyListeners();
                     },
@@ -93,14 +95,14 @@ class _SupermarketsListWidget extends State<SupermarketsListWidget> {
                         String newName = supermarket.name; // initial value
 
                         return AlertDialog(
-                          title: Text('Edit Supermarket'),
+                          title: const Text('Editar Loja'),
                           content: TextField(
                             controller: _controller,
                             onChanged: (value) {
                               newName = value;
                             },
-                            decoration: InputDecoration(
-                              hintText: 'Enter new name',
+                            decoration: const InputDecoration(
+                              hintText: 'Introduz novo nome',
                             ),
                           ),
                           actions: [
@@ -108,7 +110,7 @@ class _SupermarketsListWidget extends State<SupermarketsListWidget> {
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              icon: Icon(Icons.cancel),
+                              icon: const Icon(Icons.cancel),
                             ),
                             IconButton(
                               onPressed: () {
@@ -122,21 +124,23 @@ class _SupermarketsListWidget extends State<SupermarketsListWidget> {
                                       name: newName, price: supermarket.price),
                                 );
                               },
-                              icon: Icon(Icons.save),
+                              icon: const Icon(Icons.save),
                             ),
                           ],
                         );
                       },
                     );
                   },
-                  icon: Icon(Icons.edit),
+                  icon: const Icon(Icons.edit),
                 ),
                 IconButton(
                   onPressed: () {
                     Provider.of<SupermarketsProvider>(context, listen: false)
                         .deleteSupermarket(index);
+                    Provider.of<ProductsProvider>(context, listen: false)
+                        .deleteSupermarket(supermarket);
                   },
-                  icon: Icon(Icons.delete),
+                  icon: const Icon(Icons.delete),
                 ),
               ],
             ),

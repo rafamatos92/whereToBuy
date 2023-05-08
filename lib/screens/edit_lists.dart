@@ -14,16 +14,16 @@ class _EditWidgetState extends State<EditWidget> {
 
   final List<Widget> _pages = [
     ProductsListWidget(),
-    SupermarketsListWidget(),
+    const SupermarketsListWidget(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit'),
+        title: const Text('Editar'),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -36,13 +36,13 @@ class _EditWidgetState extends State<EditWidget> {
             _currentIndex = index;
           });
         },
-        items: [
+        items: const [
           BottomNavigationBarItem(
             label: 'Produtos',
             icon: Icon(Icons.list),
           ),
           BottomNavigationBarItem(
-            label: 'Supermercados',
+            label: 'Lojas',
             icon: Icon(Icons.shopping_cart),
           )
         ],

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping/providers/supermarket.dart';
@@ -29,7 +27,7 @@ class ProductsProvider with ChangeNotifier {
   static const _keyShoppingList = 'shopping_list';
   static const _keyProductsList = 'products_list';
 
-  Future<void> loadShoppingList() async {
+  loadShoppingList() async {
     final prefs = await SharedPreferences.getInstance();
     final shoppingListJson = prefs.getString(_keyShoppingList);
     final productsListJson = prefs.getString(_keyProductsList);
@@ -47,6 +45,8 @@ class ProductsProvider with ChangeNotifier {
       _products = productsList;
     }
 
+    updateCheapestProductSupermaket();
+
     notifyListeners();
   }
 
@@ -62,49 +62,51 @@ class ProductsProvider with ChangeNotifier {
     final supermarketsProvider = SupermarketsProvider();
     for (var i = 0; i < _products.length; i++) {
       List<Supermarket> newList = _products[i].supermarkets;
-      editProduct(
-          i,
-          Product(
-              title: _products[i].title,
-              supermarkets: supermarketsProvider.getSupermarkets()));
+      editProduct(Product(
+          id: _products[i].id,
+          title: _products[i].title,
+          supermarkets: supermarketsProvider.supermarkets));
     }
     notifyListeners();
   }
 
   void addProduct(Product product) {
     _products.add(product);
+    updateCheapestProductSupermaket();
+    saveShoppingList();
     notifyListeners();
   }
 
-  void editProduct(int index, Product product) {
+  void editProduct(Product product) {
     final novo = [..._products];
+    int index = novo.indexWhere((element) => element.id == product.id);
     novo[index] = product;
     _products = novo;
-    print(_products[index].toString());
+    updateCheapestProductSupermaket();
+    saveShoppingList();
     notifyListeners();
   }
 
   void deleteProduct(int index) {
     _products.removeAt(index);
+    updateCheapestProductSupermaket();
+    saveShoppingList();
     notifyListeners();
   }
 
   void addToShoppingList(int index) {
     _shopping_list.add(_products[index]);
+    updateCheapestProductSupermaket();
     saveShoppingList();
     notifyListeners();
   }
 
-  void delFromShoppingList(String title) {
-    print(_shopping_list.toString());
+  void deleteFromShoppingList(String title) {
     _shopping_list.removeAt(
-      _shopping_list.indexWhere((element) => element.title == title),
-    );
+        _shopping_list.indexWhere((element) => element.title == title));
     _products[_products.indexWhere((element) => element.title == title)]
         .isSelected = false;
-    print(_shopping_list
-        .indexWhere((element) => element.title == title)
-        .toString());
+    updateCheapestProductSupermaket();
     saveShoppingList();
     notifyListeners();
   }
@@ -118,8 +120,46 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void removeProduct(Product product) {
-    _shopping_list.remove(product);
+  void deleteSupermarket(Supermarket supermarket) async {
+    _products.forEach((prod) {
+      prod.supermarkets = prod.supermarkets
+          .where((element) => element.name != supermarket.name)
+          .toList();
+    });
+
+    saveShoppingList();
     notifyListeners();
+  }
+
+  void updateCheapestProductSupermaket() {
+    _cheapestProductsBySupermarket = {};
+    if (_products.where((e) => e.isSelected).isNotEmpty) {
+      final cheapestProducts = _shopping_list.map((product) {
+        dynamic cheapestSupermarket;
+        final supermarketList =
+            product.supermarkets.where((element) => element.price > 0);
+        if (supermarketList.isEmpty) {
+          cheapestSupermarket = product.supermarkets.first;
+        } else {
+          cheapestSupermarket =
+              supermarketList.reduce((a, b) => a.price < b.price ? a : b);
+        }
+
+        return Product(
+          id: product.id,
+          title: product.title,
+          supermarkets: [cheapestSupermarket],
+        );
+      }).toList();
+
+      for (final product in cheapestProducts) {
+        final supermarketName = product.supermarkets[0].name;
+        _cheapestProductsBySupermarket.putIfAbsent(supermarketName, () => []);
+        _cheapestProductsBySupermarket[supermarketName]!.add(product);
+      }
+    } else {
+      _shopping_list = [];
+      _cheapestProductsBySupermarket = {};
+    }
   }
 }

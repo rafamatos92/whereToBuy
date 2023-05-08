@@ -1,26 +1,17 @@
 import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../models/supermarket.dart';
-import '../providers/product.dart';
 
 class SupermarketsProvider extends ChangeNotifier {
   static const _keySupermarkets = 'supermarkets';
 
   List<Supermarket> _supermarkets = [
     Supermarket(name: 'Continente', price: 0.0),
-    Supermarket(name: 'Sol Mar', price: 0.0),
-    Supermarket(name: 'Recheio', price: 0.0),
-    Supermarket(name: 'Casa Cheia', price: 0.0),
-    Supermarket(name: 'Pingo Doce', price: 0.0),
-    Supermarket(name: 'Poupadinha', price: 0.0),
+    Supermarket(name: 'Sol Mar', price: 0.0)
   ];
 
   List<Supermarket> get supermarkets => _supermarkets;
-
-  List<Supermarket> getSupermarkets() => _supermarkets;
 
   Future<void> loadSupermarkets() async {
     final prefs = await SharedPreferences.getInstance();
@@ -36,33 +27,29 @@ class SupermarketsProvider extends ChangeNotifier {
 
   void addSupermarket(Supermarket supermarket) async {
     _supermarkets.add(supermarket);
-    ProductsProvider().updateProductSupermarkets(_supermarkets);
 
-    final prefs = await SharedPreferences.getInstance();
-    final supermarketsJson =
-        json.encode(_supermarkets.map((s) => s.toJson()).toList());
-    prefs.setString(_keySupermarkets, supermarketsJson);
-
-    ProductsProvider().addSupermarket(supermarket);
+    saveStatus();
     notifyListeners();
   }
 
   void editSupermarket(int index, Supermarket updatedSupermarket) async {
     _supermarkets[index] = updatedSupermarket;
 
-    final prefs = await SharedPreferences.getInstance();
-    final supermarketsJson =
-        json.encode(_supermarkets.map((s) => s.toJson()).toList());
-    prefs.setString(_keySupermarkets, supermarketsJson);
-
+    saveStatus();
     notifyListeners();
   }
 
   void deleteSupermarket(int index) async {
     _supermarkets.removeAt(index);
 
+    saveStatus();
+    notifyListeners();
+  }
+
+  void saveStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final supermarketsJson =
         json.encode(_supermarkets.map((s) => s.toJson()).toList());
+    prefs.setString(_keySupermarkets, supermarketsJson);
   }
 }

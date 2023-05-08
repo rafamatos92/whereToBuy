@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'Shopping List',
+          title: 'Lista de Compras',
           home: HomePage()),
     );
   }
@@ -33,7 +33,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Shopping List'),
+        title: Text('Conta Tostões'),
         actions: [
           IconButton(
               onPressed: () {
