@@ -65,6 +65,7 @@ class ProductsProvider with ChangeNotifier {
       editProduct(Product(
           id: _products[i].id,
           title: _products[i].title,
+          barcode: _products[i].barcode,
           supermarkets: supermarketsProvider.supermarkets));
     }
     notifyListeners();
@@ -113,7 +114,7 @@ class ProductsProvider with ChangeNotifier {
 
   void addSupermarket(Supermarket supermarket) async {
     _products.forEach((prod) {
-      prod.supermarkets.add(supermarket);
+      prod.supermarkets.add(supermarket.copyWith());
     });
 
     saveShoppingList();
@@ -148,6 +149,7 @@ class ProductsProvider with ChangeNotifier {
         return Product(
           id: product.id,
           title: product.title,
+          barcode: product.barcode,
           supermarkets: [cheapestSupermarket],
         );
       }).toList();

@@ -37,48 +37,63 @@ class _EditShoppingListState extends State<EditShoppingList> {
       ),
       body: Column(
         children: [
-          // Search bar widget
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  searchQuery = value;
-                });
-              },
-            ),
-          ),
           Expanded(
             child: ListView.builder(
               itemCount: filteredProducts.length,
               itemBuilder: (context, index) {
                 final product = filteredProducts[index];
 
-                return ListTile(
-                  title: Text(product.title),
-                  trailing: Checkbox(
-                    value: product.isSelected,
-                    onChanged: (value) {
-                      product.isSelected = value!;
-                      final productsProvider =
-                          Provider.of<ProductsProvider>(context, listen: false);
+                return Column(
+                  children: [
+                    ListTile(
+                      title: Text(product.title),
+                      trailing: Checkbox(
+                        value: product.isSelected,
+                        onChanged: (value) {
+                          product.isSelected = value!;
+                          final productsProvider =
+                              Provider.of<ProductsProvider>(context,
+                                  listen: false);
 
-                      value
-                          ? productsProvider.addToShoppingList(index)
-                          : productsProvider
-                              .deleteFromShoppingList(product.title);
-                    },
-                  ),
+                          value
+                              ? productsProvider.addToShoppingList(index)
+                              : productsProvider
+                                  .deleteFromShoppingList(product.title);
+                        },
+                      ),
+                    ),
+                    const Divider(
+                      color: Colors.grey,
+                    )
+                  ],
                 );
               },
             ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width - 25,
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Pesquisar',
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        searchQuery = value;
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

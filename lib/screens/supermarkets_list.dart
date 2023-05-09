@@ -18,7 +18,8 @@ class _SupermarketsListWidget extends State<SupermarketsListWidget> {
         Provider.of<SupermarketsProvider>(context).supermarkets;
 
     return Scaffold(
-      floatingActionButton: IconButton(
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.blue,
         onPressed: () {
           showDialog(
             context: context,
@@ -63,7 +64,10 @@ class _SupermarketsListWidget extends State<SupermarketsListWidget> {
             },
           );
         },
-        icon: const Icon(Icons.add),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
       ),
       body: ListView.builder(
         itemCount: supermarkets.length,
