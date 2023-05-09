@@ -22,6 +22,21 @@ class ProductsListWidget extends StatefulWidget {
 
 class _ProductsListWidgetState extends State<ProductsListWidget> {
   String searchQuery = '';
+  List<String> categories = [
+    "",
+    "Frutas e vegetais",
+    "Carnes",
+    "Peixes",
+    "Laticínios e ovos",
+    "Padaria",
+    "Produtos enlatados",
+    "Bebidas",
+    "Limpeza",
+    "Higiene pessoal",
+    "Doces/Snacks",
+    "Outros",
+    "Animais"
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +44,8 @@ class _ProductsListWidgetState extends State<ProductsListWidget> {
 
     final filteredProducts = products
         .where((product) =>
-            product.title.toLowerCase().contains(searchQuery.toLowerCase()))
+            product.title.toLowerCase().contains(searchQuery.toLowerCase()) ||
+            product.barcode.toLowerCase().contains(searchQuery.toLowerCase()))
         .toList();
 
     return Scaffold(
@@ -43,6 +59,8 @@ class _ProductsListWidgetState extends State<ProductsListWidget> {
             ) {
               String newName = '';
               String newBarcode = '';
+              String? selectedUnit = 'Kg';
+              String? selectedCategory = '';
               Product newProduct = Product(
                 id: generateUniqueId(),
                 title: '',
@@ -65,9 +83,10 @@ class _ProductsListWidgetState extends State<ProductsListWidget> {
                       ),
                     ),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         SizedBox(
-                          width: 200,
+                          width: 230,
                           child: TextField(
                             controller: _controller,
                             onChanged: (value) {
@@ -92,7 +111,48 @@ class _ProductsListWidgetState extends State<ProductsListWidget> {
                               _controller.text = barcode;
                             });
                           },
-                          icon: Icon(Icons.camera),
+                          icon: Icon(Icons.barcode_reader),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: 100,
+                          child: DropdownButtonFormField<String>(
+                            value: selectedUnit,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedUnit = value!;
+                              });
+                            },
+                            items: <String>['Kg', 'Un']
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 150,
+                          child: DropdownButtonFormField<String>(
+                            value: selectedCategory,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedCategory = value!;
+                              });
+                            },
+                            items: categories
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
                         ),
                       ],
                     ),
@@ -141,6 +201,8 @@ class _ProductsListWidgetState extends State<ProductsListWidget> {
                   IconButton(
                     onPressed: () {
                       newProduct.title = newName;
+                      newProduct.category = selectedCategory ?? '';
+                      newProduct.units = selectedUnit ?? '';
                       Navigator.of(context).pop();
                       Provider.of<ProductsProvider>(context, listen: false)
                           .addProduct(newProduct);
@@ -185,6 +247,8 @@ class _ProductsListWidgetState extends State<ProductsListWidget> {
                                 ) {
                                   String newName = product.title;
                                   String newBarCode = product.barcode;
+                                  String selectedUnit = product.units;
+                                  String selectedCategory = product.category;
                                   List<Supermarket> new_supermarkets =
                                       product.supermarkets;
 
@@ -203,9 +267,11 @@ class _ProductsListWidgetState extends State<ProductsListWidget> {
                                             ),
                                           ),
                                           Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               SizedBox(
-                                                width: 200,
+                                                width: 220,
                                                 child: TextField(
                                                   controller:
                                                       _barcode_controller,
@@ -235,7 +301,62 @@ class _ProductsListWidgetState extends State<ProductsListWidget> {
                                                         barcode;
                                                   });
                                                 },
-                                                icon: Icon(Icons.camera),
+                                                icon:
+                                                    Icon(Icons.barcode_reader),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              SizedBox(
+                                                width: 100,
+                                                child: DropdownButtonFormField<
+                                                    String>(
+                                                  value: selectedUnit,
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      selectedUnit = value!;
+                                                    });
+                                                  },
+                                                  items: <String>[
+                                                    '',
+                                                    'Kg',
+                                                    'Un'
+                                                  ].map<
+                                                          DropdownMenuItem<
+                                                              String>>(
+                                                      (String value) {
+                                                    return DropdownMenuItem<
+                                                        String>(
+                                                      value: value,
+                                                      child: Text(value),
+                                                    );
+                                                  }).toList(),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: 150,
+                                                child: DropdownButtonFormField<
+                                                    String>(
+                                                  value: selectedCategory,
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      selectedCategory = value!;
+                                                    });
+                                                  },
+                                                  items: categories.map<
+                                                          DropdownMenuItem<
+                                                              String>>(
+                                                      (String value) {
+                                                    return DropdownMenuItem<
+                                                        String>(
+                                                      value: value,
+                                                      child: Text(value),
+                                                    );
+                                                  }).toList(),
+                                                ),
                                               ),
                                             ],
                                           ),
@@ -307,6 +428,8 @@ class _ProductsListWidgetState extends State<ProductsListWidget> {
                                                   id: product.id,
                                                   title: newName,
                                                   barcode: newBarCode,
+                                                  units: selectedUnit,
+                                                  category: selectedCategory,
                                                   supermarkets:
                                                       new_supermarkets),
                                             );

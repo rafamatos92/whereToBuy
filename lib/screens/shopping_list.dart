@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:provider/provider.dart';
@@ -18,11 +20,31 @@ class _CheapestProductsListWidgetState
     extends State<CheapestProductsListWidget> {
   @override
   Widget build(BuildContext context) {
+    final shopingListCopy = Provider.of<ProductsProvider>(context)
+        .shopping_list
+        .map((p) => p.copyWith())
+        .toList();
     final products = Provider.of<ProductsProvider>(context).shopping_list;
     final supermarkets =
         Provider.of<SupermarketsProvider>(context).supermarkets;
     final cheapestProductsBySupermarket =
         Provider.of<ProductsProvider>(context).cheapestProductsBySupermarket;
+
+    List<String> categories = [
+      "",
+      "Frutas e vegetais",
+      "Carnes",
+      "Peixes",
+      "Laticínios e ovos",
+      "Padaria",
+      "Produtos enlatados",
+      "Bebidas",
+      "Limpeza",
+      "Higiene pessoal",
+      "Doces/Snacks",
+      "Outros",
+      "Animais"
+    ];
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
@@ -52,6 +74,14 @@ class _CheapestProductsListWidgetState
                     cheapestProductsBySupermarket.keys.elementAt(index);
                 final products =
                     cheapestProductsBySupermarket[supermarketName]!;
+                var total = 0.0;
+                for (final product in shopingListCopy) {
+                  final price = product.supermarkets
+                      .where((element) => element.name == supermarketName)
+                      .first
+                      .price;
+                  total += price;
+                }
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,17 +89,31 @@ class _CheapestProductsListWidgetState
                     Container(
                       color: Colors.blue[300], // background color
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      width: double.infinity,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          '$supermarketName',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                              fontSize: 18,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              '$supermarketName',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            '$total€',
+                            textAlign: TextAlign.right,
+                            style: const TextStyle(
+                              fontSize: 14,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white),
-                        ),
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                        ],
                       ),
                     ),
                     ListView.builder(
@@ -136,6 +180,9 @@ class _CheapestProductsListWidgetState
                                               .products[newProdIndex];
                                       String newName = product.title;
                                       String newBarCode = product.barcode;
+                                      String selectedUnit = newProduct.units;
+                                      String selectedCategory =
+                                          newProduct.category;
                                       List<Supermarket> new_supermarkets =
                                           newProduct.supermarkets;
 
@@ -157,9 +204,12 @@ class _CheapestProductsListWidgetState
                                                 ),
                                               ),
                                               Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
                                                 children: [
                                                   SizedBox(
-                                                    width: 200,
+                                                    width: 250,
                                                     child: TextField(
                                                       controller:
                                                           _barcode_controller,
@@ -192,6 +242,64 @@ class _CheapestProductsListWidgetState
                                                       });
                                                     },
                                                     icon: Icon(Icons.camera),
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  SizedBox(
+                                                    width: 100,
+                                                    child:
+                                                        DropdownButtonFormField<
+                                                            String>(
+                                                      value: selectedUnit,
+                                                      onChanged: (value) {
+                                                        setState(() {
+                                                          selectedUnit = value!;
+                                                        });
+                                                      },
+                                                      items: <String>[
+                                                        '',
+                                                        'Kg',
+                                                        'Un'
+                                                      ].map<
+                                                              DropdownMenuItem<
+                                                                  String>>(
+                                                          (String value) {
+                                                        return DropdownMenuItem<
+                                                            String>(
+                                                          value: value,
+                                                          child: Text(value),
+                                                        );
+                                                      }).toList(),
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    width: 150,
+                                                    child:
+                                                        DropdownButtonFormField<
+                                                            String>(
+                                                      value: selectedCategory,
+                                                      onChanged: (value) {
+                                                        setState(() {
+                                                          selectedCategory =
+                                                              value!;
+                                                        });
+                                                      },
+                                                      items: categories.map<
+                                                              DropdownMenuItem<
+                                                                  String>>(
+                                                          (String value) {
+                                                        return DropdownMenuItem<
+                                                            String>(
+                                                          value: value,
+                                                          child: Text(value),
+                                                        );
+                                                      }).toList(),
+                                                    ),
                                                   ),
                                                 ],
                                               ),
@@ -256,6 +364,9 @@ class _CheapestProductsListWidgetState
                                             IconButton(
                                               onPressed: () {
                                                 product.title = newName;
+                                                product.units = selectedUnit;
+                                                product.category =
+                                                    selectedCategory;
                                                 Navigator.of(context).pop();
                                                 Provider.of<ProductsProvider>(
                                                         context,
@@ -265,10 +376,18 @@ class _CheapestProductsListWidgetState
                                                       id: newProduct.id,
                                                       title: newName,
                                                       barcode: newBarCode,
+                                                      units: selectedUnit,
+                                                      category:
+                                                          selectedCategory,
                                                       supermarkets:
                                                           new_supermarkets,
                                                       isSelected: true),
                                                 );
+                                                Provider.of<ProductsProvider>(
+                                                        context,
+                                                        listen: false)
+                                                    .deleteFromShoppingList(
+                                                        newName);
                                               },
                                               icon: const Icon(Icons.save),
                                             ),
@@ -288,7 +407,8 @@ class _CheapestProductsListWidgetState
                                     Text(product.barcode != ''
                                         ? '${product.barcode} - '
                                         : ''),
-                                    Text('${product.supermarkets[0].price}€'),
+                                    Text(
+                                        '${product.supermarkets[0].price}€ / ${product.units}'),
                                   ],
                                 ),
                                 trailing: IconButton(

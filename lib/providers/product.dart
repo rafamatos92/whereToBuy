@@ -154,6 +154,8 @@ class ProductsProvider with ChangeNotifier {
         );
       }).toList();
 
+      cheapestProducts.sort((a, b) => a.category.compareTo(b.category));
+
       for (final product in cheapestProducts) {
         final supermarketName = product.supermarkets[0].name;
         _cheapestProductsBySupermarket.putIfAbsent(supermarketName, () => []);
@@ -163,5 +165,6 @@ class ProductsProvider with ChangeNotifier {
       _shopping_list = [];
       _cheapestProductsBySupermarket = {};
     }
+    notifyListeners();
   }
 }

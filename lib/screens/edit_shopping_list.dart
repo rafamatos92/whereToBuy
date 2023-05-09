@@ -22,7 +22,8 @@ class _EditShoppingListState extends State<EditShoppingList> {
     // Filter the list of products based on the search query
     final filteredProducts = products
         .where((product) =>
-            product.title.toLowerCase().contains(searchQuery.toLowerCase()))
+            product.title.toLowerCase().contains(searchQuery.toLowerCase()) ||
+            product.barcode.toLowerCase().contains(searchQuery.toLowerCase()))
         .toList();
 
     return Scaffold(

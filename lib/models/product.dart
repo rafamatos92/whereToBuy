@@ -6,26 +6,36 @@ class Product {
   List<Supermarket> supermarkets;
   bool isSelected = false;
   String barcode;
+  String units;
+  String category;
 
   Product(
       {required this.id,
       required this.title,
       required this.supermarkets,
       this.isSelected = false,
-      this.barcode = ''});
+      this.barcode = '',
+      this.category = '',
+      this.units = 'Kg'});
 
-  Product copyWith(
-      {String? id,
-      String? title,
-      List<Supermarket>? supermarkets,
-      bool? isSelected,
-      String? barcode}) {
+  Product copyWith({
+    String? id,
+    String? title,
+    List<Supermarket>? supermarkets,
+    bool? isSelected,
+    String? barcode,
+    String? units,
+    String? category,
+  }) {
     return Product(
-        id: id ?? this.id,
-        title: title ?? this.title,
-        supermarkets: supermarkets ?? this.supermarkets,
-        isSelected: isSelected ?? this.isSelected,
-        barcode: barcode ?? this.barcode);
+      id: id ?? this.id,
+      title: title ?? this.title,
+      supermarkets: supermarkets ?? this.supermarkets,
+      isSelected: isSelected ?? this.isSelected,
+      barcode: barcode ?? this.barcode,
+      units: units ?? this.units,
+      category: category ?? this.category,
+    );
   }
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -35,7 +45,9 @@ class Product {
         supermarkets: List<Supermarket>.from(
             json['supermarkets'].map((x) => Supermarket.fromJson(x))),
         isSelected: json['isSelected'] ?? false,
-        barcode: json['barcode'] ?? '');
+        barcode: json['barcode'] ?? '',
+        category: json['category'] ?? '',
+        units: json['units'] ?? '');
   }
 
   Map<String, dynamic> toJson() {
@@ -44,12 +56,14 @@ class Product {
       'title': title,
       'supermarkets': supermarkets.map((x) => x.toJson()).toList(),
       'isSelected': isSelected,
-      'barcode': barcode
+      'barcode': barcode,
+      'units': units,
+      'category': category,
     };
   }
 
   @override
   String toString() {
-    return 'Product{name: $title, supermarkets: $supermarkets, isSelected: $isSelected}';
+    return 'Product{name: $title, supermarkets: $supermarkets, isSelected: $isSelected, unit: $units, category: $category}';
   }
 }
